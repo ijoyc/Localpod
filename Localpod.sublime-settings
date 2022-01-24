@@ -1,0 +1,13 @@
+{
+    /*
+    options
+    =======
+    */
+
+    /* Replace this one with your work directory to speed up pod searching */
+    "work_directory": "~",
+
+    "abs_paths_for_pods": {
+        "ExamplePod": "~/WorkSpace/iOS/ExamplePod/Libs/ExamplePod"
+    }
+}
