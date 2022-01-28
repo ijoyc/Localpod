@@ -6,9 +6,9 @@ from os import path
 PLUGIN_NAME = "Localpod"
 
 class Pod(object):
-    def __init__(self, name, textRange):
+    def __init__(self, name, start, end):
         self.name = name
-        self.textRange = (textRange.a, textRange.b)
+        self.textRange = (start, end)
 
 class runlocalpodCommand(sublime_plugin.WindowCommand):
 
@@ -36,7 +36,7 @@ class runlocalpodCommand(sublime_plugin.WindowCommand):
         regexp = 'pod\\s*[\'\"]([_a-zA-Z][_a-zA-Z0-9]*)[\'\"]\\s*,\\s*([\'\"][^\'\"]+[\'\"])'
         extraction = []
         result = view.find_all(regexp, sublime.IGNORECASE, "$1", extraction)
-        self.pod_list = list(map(lambda group: Pod(group[1], group[0]), zip(result, extraction)))
+        self.pod_list = list(map(lambda group: Pod(group[1], group[0].a, group[0].b), zip(result, extraction)))
 
     # ====== Phase 2: Find Local Pods ======
 
@@ -115,15 +115,19 @@ class runlocalpodCommand(sublime_plugin.WindowCommand):
         self.show_quick_panel(self.first_list, self.first_select)
 
 
-
 class writelocalpodCommand(sublime_plugin.TextCommand):
     def run(self, edit, **kwargs):
-        pod_list = kwargs['pod_list']
+        all_pod_list = kwargs['pod_list']
         replacement_map = kwargs['replacement_map']
-        for name, path in replacement_map.items():
-            if name in pod_list:
-                textRange = pod_list[name]
-                self.view.replace(edit, sublime.Region(textRange[0], textRange[1]), "pod '%s', :path => '%s'" % (name, path))
+        filtered_pod_list = dict(filter(lambda pair: pair[0] in replacement_map.keys(), all_pod_list.items()))
+        filtered_pods = list(map(lambda x: Pod(x[0], x[1][0], x[1][1]), filtered_pod_list.items()))
+        sorted_pods = list(sorted(filtered_pods, key=lambda pod: pod.textRange[0], reverse=True))
+
+        for pod in sorted_pods:
+            name = pod.name
+            path = replacement_map[name]
+            textRange = sublime.Region(pod.textRange[0], pod.textRange[1])
+            self.view.replace(edit, textRange, "pod '%s', :path => '%s'" % (name, path))
 
 
 
