@@ -31,4 +31,12 @@ To make it work and work fast, several settings are necessary.
 
 ### Installation
 
-Install via package control
+#### Package Control (TBD)
+
+#### Manual Installation
+
+On Mac:
+
+```
+git clone https://github.com/ijoyc/Localpod ~/Library/Application\ Support/Sublime\ Text\ 3/Packages/Localpod
+```
